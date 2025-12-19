@@ -43,9 +43,7 @@ La interfaz es intuitiva y consta de tres pasos simples:
 
 ### 📸 Captura de Pantalla
 
-*(Puedes agregar aquí una captura de pantalla de la aplicación ejecutándose para mostrar la interfaz)*
-
-![Interfaz de la Aplicación](ruta/a/tu/imagen.png)
+![Interfaz de la Aplicación](img.png)
 
 ---
 Desarrollado por [alxz0212](https://github.com/alxz0212)
