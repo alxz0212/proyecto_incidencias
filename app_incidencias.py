@@ -1,7 +1,28 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import os
-from PIL import Image, ImageTk # Importamos Pillow
+import sys # Necesario para detectar si es .exe
+from PIL import Image, ImageTk 
+
+# Función mágica para encontrar recursos dentro del .exe
+def resource_path(relative_path):
+    """ Obtiene la ruta absoluta al recurso, funcione en desarrollo y en PyInstaller """
+    try:
+        # PyInstaller crea una carpeta temporal y guarda la ruta en _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+# Función para centrar la ventana
+def center_window(win):
+    win.update_idletasks()
+    width = win.winfo_width()
+    height = win.winfo_height()
+    x = (win.winfo_screenwidth() // 2) - (width // 2)
+    y = (win.winfo_screenheight() // 2) - (height // 2)
+    win.geometry(f'{width}x{height}+{x}+{y}')
 
 # Estructura de datos sin cambios
 INCIDENCIAS = {
@@ -25,7 +46,7 @@ INCIDENCIAS = {
     #     ],
     #     "imagen": "lenta_ayuda.png"
     # },
-    "⚫ No enciende / Pantalla negra": {
+    "⚫ No enciende Pantalla": {
         "tipo": "subopcion",
         "opciones": {
             "💻 Laptop": {
@@ -139,20 +160,18 @@ def ver_imagen():
         messagebox.showinfo("Información", "Esta incidencia no tiene imagen asociada.")
         return
 
-    ruta_imagen = os.path.join("imagenes", nombre_archivo)
+    ruta_imagen = resource_path(os.path.join("imagenes", nombre_archivo))
     
     if not os.path.exists(ruta_imagen):
-        messagebox.showwarning("Imagen no encontrada", f"No se encontró el archivo: {nombre_archivo}")
+        messagebox.showwarning("Imagen no encontrada", f"No se encontró el archivo: {nombre_archivo}\nRuta buscada: {ruta_imagen}")
         return
 
     try:
         ventana_img = tk.Toplevel(root)
         ventana_img.title(f"Ayuda visual: {current_titulo}")
         
-        # Usamos Pillow para abrir y redimensionar
         image_file = Image.open(ruta_imagen)
         
-        # Redimensionar si es muy grande (Max 800x600)
         max_size = (800, 600)
         image_file.thumbnail(max_size, Image.Resampling.LANCZOS)
 
@@ -164,8 +183,11 @@ def ver_imagen():
         
         ttk.Button(ventana_img, text="Cerrar", command=ventana_img.destroy).pack(pady=5)
         
+        # Centrar la ventana de la imagen también
+        center_window(ventana_img)
+
     except Exception as e:
-        messagebox.showerror("Error al abrir imagen", f"No se pudo abrir la imagen '{nombre_archivo}'.\n\nAsegúrate de tener la librería 'Pillow' instalada (pip install Pillow).\n\nDetalle: {e}")
+        messagebox.showerror("Error al abrir imagen", f"No se pudo abrir la imagen '{nombre_archivo}'.\n\nDetalle: {e}")
 
 def copiar():
     contenido = output.get("1.0", tk.END).strip()
@@ -204,5 +226,8 @@ btn_imagen = ttk.Button(bottom_frm, text="📷 Ver imagen de ayuda", command=ver
 btn_imagen.pack(side="left")
 
 ttk.Button(bottom_frm, text="Copiar recomendaciones", command=copiar).pack(side="right")
+
+# Centrar la ventana principal
+center_window(root)
 
 root.mainloop()
